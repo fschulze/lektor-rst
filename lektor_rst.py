@@ -53,6 +53,9 @@ class Rst(object):
         self.__cached_for_ctx = None
         self.__html = None
         self.__meta = None
+        
+    def __bool__(self):
+        return bool(self.source)
 
     def __nonzero__(self):
         return bool(self.source)

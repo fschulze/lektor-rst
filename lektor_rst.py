@@ -10,10 +10,22 @@ import docutils.core
 import docutils.writers.html4css1
 
 
+def fix_section_headers(text):
+    """Add one extra dash to dashed title under/overlines."""
+    out = StringIO()
+    for line in text.splitlines():
+        if line.startswith('--'):
+            line = line + '-'
+        out.write(line + '\n')
+    return out.getvalue()
+
+
 def rst_to_html(text, extra_params, record):
     ctx = get_ctx()
     if ctx is None:
         raise RuntimeError('Context is required for markdown rendering')
+
+    text = fix_section_headers(text)
 
     pub = docutils.core.Publisher(
         destination_class=docutils.io.StringOutput)

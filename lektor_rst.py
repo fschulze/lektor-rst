@@ -49,6 +49,9 @@ def rst_to_html(text, extra_params, record):
 def clean_rst(text, border=True, colgroup=True, valign=True, th_head=True,
               section=True, docutils=True):
     root = etree.HTML(text.html)
+    if not root:
+        return text
+
     body_nodes = root.xpath('/html/body')
     if not body_nodes:
         return text

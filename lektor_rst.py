@@ -49,7 +49,10 @@ def rst_to_html(text, extra_params, record):
 def clean_rst(text, border=True, colgroup=True, valign=True, th_head=True,
               section=True, docutils=True):
     root = etree.HTML(text.html)
-    body = root.xpath('/html/body')[0]
+    body_nodes = root.xpath('/html/body')
+    if not body_nodes:
+        return text
+    body = body_nodes[0]
 
     if border:
         # remove border attributes from table elements

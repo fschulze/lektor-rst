@@ -3,6 +3,7 @@ from io import StringIO
 from lektor.context import get_ctx
 from lektor.pluginsystem import Plugin
 from lektor.types import Type
+from lxml import etree
 from markupsafe import Markup
 from weakref import ref as weakref
 import datetime
@@ -43,6 +44,58 @@ def rst_to_html(text, extra_params, record):
     body = parts['html_title'] + parts['html_subtitle'] + parts['fragment']
 
     return body, metadata
+
+
+def clean_rst(text, border=True, colgroup=True, valign=True, th_head=True,
+              section=True, docutils=True):
+    root = etree.HTML(text.html)
+    body = root.xpath('/html/body')[0]
+
+    if border:
+        # remove border attributes from table elements
+        for node in body.xpath('//table[@border]'):
+            del node.attrib['border']
+
+    if colgroup:
+        # remove colgroup elements
+        for node in body.xpath('//table/colgroup'):
+            node.getparent().remove(node)
+
+    if valign:
+        # remove valign attributes
+        for node in body.xpath('//*[@valign]'):
+            del node.attrib['valign']
+
+    if th_head:
+        # remove head class from th elements
+        for node in body.xpath('//th[@class="head"]'):
+            del node.attrib['class']
+
+    if section:
+        # convert section divs into section elements
+        for node in body.xpath('//div[@class="section"]'):
+            node.tag = "section"
+
+    if docutils:
+        # remove docutils classes
+        for node in body.xpath('//div[contains(@class, "docutils container")]'):
+            classes = node.attrib['class'].replace('docutils container', '').strip()
+            if not classes:
+                del node.attrib['class']
+            else:
+                node.attrib['class'] = classes
+        for node in body.xpath('//*[contains(@class, "docutils")]'):
+            classes = node.attrib['class'].replace('docutils', '').strip()
+            if not classes:
+                del node.attrib['class']
+            else:
+                node.attrib['class'] = classes
+
+    cleaned = StringIO()
+    for child in body:
+        cleaned.write(etree.tostring(child, encoding='unicode', method='html',
+                      pretty_print=True))
+    return Markup(cleaned.getvalue())
 
 
 class Rst(object):
@@ -126,3 +179,4 @@ class RstPlugin(Plugin):
 
     def on_setup_env(self, **extra):
         self.env.types['rst'] = RstType
+        self.env.jinja_env.filters['cleanrst'] = clean_rst

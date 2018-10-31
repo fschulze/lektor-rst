@@ -11,7 +11,8 @@ setup(
     license='MIT',
     install_requires=[
         'Pygments',
-        'docutils'],
+        'docutils',
+        'lxml'],
     py_modules=['lektor_rst'],
     entry_points={
         'lektor.plugins': [

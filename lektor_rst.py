@@ -18,7 +18,9 @@ def rst_to_html(text, extra_params, record):
 
     try:
         config = ctx.env.plugins.get('rst').get_config()
-        writer_name = config.get('docutils.writer', 'html')
+        settings = config.section_as_dict('docutils')
+        writer_name = settings.pop('writer', 'html')
+        extra_params.update(settings)
     except:
         writer_name = 'html'
 

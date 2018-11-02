@@ -14,8 +14,9 @@ def fix_section_headers(text):
     """Add one extra dash to dashed title under/overlines."""
     out = StringIO()
     for line in text.splitlines():
-        if line.startswith('--'):
-            line = line + '-'
+        if line.lstrip().startswith('--'):
+            first_dash = line.index('-')
+            line = line[:first_dash] + '-' + line[first_dash:]
         out.write(line + '\n')
     return out.getvalue()
 

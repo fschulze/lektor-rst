@@ -7,6 +7,7 @@ from markupsafe import Markup
 from weakref import ref as weakref
 import datetime
 import docutils.core
+import docutils.writers
 import docutils.writers.html4css1
 
 
@@ -15,8 +16,16 @@ def rst_to_html(text, extra_params, record):
     if ctx is None:
         raise RuntimeError('Context is required for markdown rendering')
 
+    try:
+        config = ctx.env.plugins.get('rst').get_config()
+        writer_name = config.get('docutils.writer', 'html')
+    except:
+        writer_name = 'html'
+
+    Writer = docutils.writers.get_writer_class(writer_name)
     pub = docutils.core.Publisher(
-        destination_class=docutils.io.StringOutput)
+        destination_class=docutils.io.StringOutput,
+        writer=Writer())
     pub.set_components('standalone', 'restructuredtext', 'html')
     pub.process_programmatic_settings(None, extra_params, None)
     pub.set_source(

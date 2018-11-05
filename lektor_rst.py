@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from io import StringIO
 from lektor.context import get_ctx
-from lektor.pluginsystem import Plugin
+from lektor.pluginsystem import Plugin, get_plugin
 from lektor.types import Type
 from markupsafe import Markup
 from weakref import ref as weakref
@@ -17,7 +17,8 @@ def rst_to_html(text, extra_params, record):
         raise RuntimeError('Context is required for markdown rendering')
 
     try:
-        config = ctx.env.plugins.get('rst').get_config()
+        plugin = get_plugin('rst')
+        config = plugin.get_config()
         settings = config.section_as_dict('docutils')
         writer_name = settings.pop('writer', 'html')
         extra_params.update(settings)

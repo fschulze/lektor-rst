@@ -8,12 +8,18 @@ from weakref import ref as weakref
 import datetime
 import docutils.core
 import docutils.writers.html4css1
+import re
+
+
+_re_dashes = re.compile(r"^(\s*)(---*)", re.MULTILINE)
 
 
 def rst_to_html(text, extra_params, record):
     ctx = get_ctx()
     if ctx is None:
         raise RuntimeError('Context is required for markdown rendering')
+
+    text = _re_dashes.sub(r"\1-\2", text)
 
     pub = docutils.core.Publisher(
         destination_class=docutils.io.StringOutput)

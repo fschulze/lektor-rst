@@ -3,9 +3,12 @@ import py
 import pyquery
 
 
-def test_rst(builder):
+def test_rst(builder, capsys):
     failures = builder.build_all()
+    (out, err) = capsys.readouterr()
     assert not failures
+    assert out == ''
+    assert err == ''
     dst = py.path.local(builder.destination_path)
     index_html = pyquery.PyQuery(
         dst.join('index.html').read_text('utf-8'))

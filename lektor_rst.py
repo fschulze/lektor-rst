@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 from io import StringIO
 from lektor.context import get_ctx
-from lektor.pluginsystem import Plugin
+from lektor.pluginsystem import Plugin, get_plugin
 from lektor.types import Type
 from markupsafe import Markup
 from weakref import ref as weakref
 import datetime
 import docutils.core
+import docutils.writers
 import docutils.writers.html4css1
 import re
 
@@ -21,8 +22,19 @@ def rst_to_html(text, extra_params, record):
 
     text = _re_dashes.sub(r"\1-\2", text)
 
+    try:
+        plugin = get_plugin('rst')
+        config = plugin.get_config()
+        settings = config.section_as_dict('docutils')
+        writer_name = settings.pop('writer', 'html')
+        extra_params.update(settings)
+    except:
+        writer_name = 'html'
+
+    Writer = docutils.writers.get_writer_class(writer_name)
     pub = docutils.core.Publisher(
-        destination_class=docutils.io.StringOutput)
+        destination_class=docutils.io.StringOutput,
+        writer=Writer())
     pub.set_components('standalone', 'restructuredtext', 'html')
     pub.process_programmatic_settings(None, extra_params, None)
     pub.set_source(

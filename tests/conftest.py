@@ -1,14 +1,21 @@
 import os
+import py
 import pytest
 import shutil
 import tempfile
 
 
 @pytest.fixture
-def project(request):
-    from lektor.project import Project
+def project_path(request, tmpdir):
     path = os.path.join(os.path.dirname(__file__), "demo-project")
-    prj = Project.from_path(path)
+    py.path.local(path).copy(tmpdir)
+    return tmpdir
+
+
+@pytest.fixture
+def project(request, project_path):
+    from lektor.project import Project
+    prj = Project.from_path(project_path.strpath)
     assert prj is not None
     return prj
 

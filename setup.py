@@ -4,7 +4,7 @@ from setuptools import setup
 setup(
     name='lektor-rst',
     description='Adds reStructuredText support to Lektor.',
-    version='0.1',
+    version='0.2.0',
     author=u'Florian Schulze',
     author_email='florian.schulze@gmx.net',
     url='http://github.com/fschulze/lektor-rst',

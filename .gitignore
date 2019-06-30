@@ -1,2 +1,11 @@
 __pycache__
 *.egg-info
+*.sublime-project
+/.coverage
+/.tox
+/pip-selfcheck.json
+/bin/
+/dist/
+/htmlcov_*/
+/include/
+/lib/

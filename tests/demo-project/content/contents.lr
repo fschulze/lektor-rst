@@ -1,0 +1,11 @@
+title: Welcome
+---
+body:
+
+`Foo bar`_
+
+.. code-block:: ini
+
+    [tox]
+
+.. _Foo bar: http://example.com

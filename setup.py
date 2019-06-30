@@ -10,8 +10,15 @@ setup(
     url='http://github.com/fschulze/lektor-rst',
     license='MIT',
     install_requires=[
+        'Lektor',
         'Pygments',
         'docutils'],
+    extras_require={
+        'dev': [
+            'pyquery',
+            'pytest',
+            'pytest-cov',
+            'pytest-flake8']},
     py_modules=['lektor_rst'],
     entry_points={
         'lektor.plugins': [

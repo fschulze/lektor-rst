@@ -43,7 +43,7 @@ def rst_to_html(text, extra_params, record):
     pub.publish()
 
     metadata = {}
-    for docinfo in pub.document.traverse(docutils.nodes.docinfo):
+    for docinfo in pub.document.findall(docutils.nodes.docinfo):
         for element in docinfo.children:
             if element.tagname == 'field':
                 name_elem, body_elem = element.children

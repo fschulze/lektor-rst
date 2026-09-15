@@ -26,6 +26,9 @@ dev = [
     "pytest",
     "pytest-cov",
 ]
+ruff = [
+    "ruff",
+]
 
 [build-system]
 requires = ["setuptools >= 77.0.3"]

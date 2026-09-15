@@ -1,0 +1,49 @@
+[project]
+name = "lektor-rst"
+version = "0.4.0"
+description = "Adds reStructuredText support to Lektor."
+license = "MIT"
+readme = "README.rst"
+authors = [
+    { name = "Florian Schulze", email = "florian.schulze@gmx.net" },
+]
+requires-python = ">= 3.9"
+dependencies = [
+    "Lektor",
+    "Pygments",
+    "docutils>=0.21",
+]
+
+[project.urls]
+Homepage = "http://github.com/fschulze/lektor-rst"
+
+[project.entry-points."lektor.plugins"]
+rst = "lektor_rst:RstPlugin"
+
+[dependency-groups]
+dev = [
+    "pyquery",
+    "pytest",
+    "pytest-cov",
+]
+
+[build-system]
+requires = ["setuptools >= 77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = [ "lektor_rst" ]
+
+[tool.pytest]
+addopts = [ "--cov=lektor_rst", "--cov-report=term", "--cov-report=html", "-ra" ]
+testpaths = [ "tests" ]
+
+[tool.coverage.html]
+# Allows controlling html report directory via envvar, e.g. in tox.ini
+directory = "${COVERAGE_HTML_DIR-htmlcov}"
+
+[tool.ruff.lint]
+extend-select = [
+    "F", "E", "W",              # all default flake8 rules
+    "B",                        # flake8-bugbear
+]

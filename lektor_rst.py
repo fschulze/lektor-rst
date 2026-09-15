@@ -1,16 +1,15 @@
-# -*- coding: utf-8 -*-
+import datetime
+import re
 from io import StringIO
+from weakref import ref as weakref
+
+import docutils.core
+import docutils.writers
+import docutils.writers.html4css1
 from lektor.context import get_ctx
 from lektor.pluginsystem import Plugin, get_plugin
 from lektor.types import Type
 from markupsafe import Markup
-from weakref import ref as weakref
-import datetime
-import docutils.core
-import docutils.writers
-import docutils.writers.html4css1
-import re
-
 
 _re_dashes = re.compile(r"^(\s*)(---*)", re.MULTILINE)
 
@@ -18,34 +17,36 @@ _re_dashes = re.compile(r"^(\s*)(---*)", re.MULTILINE)
 def rst_to_html(text, extra_params, record):
     ctx = get_ctx()
     if ctx is None:
-        raise RuntimeError('Context is required for markdown rendering')
+        raise RuntimeError("Context is required for markdown rendering")
 
     text = _re_dashes.sub(r"\1-\2", text)
 
     try:
-        plugin = get_plugin('rst')
+        plugin = get_plugin("rst")
         config = plugin.get_config()
-        settings = config.section_as_dict('docutils')
-        writer_name = settings.pop('writer', 'html')
+        settings = config.section_as_dict("docutils")
+        writer_name = settings.pop("writer", "html")
         extra_params.update(settings)
-    except:
-        writer_name = 'html'
+    except LookupError:
+        writer_name = "html"
 
     pub = docutils.core.Publisher(
         destination_class=docutils.io.StringOutput,
         reader="standalone",
         parser="restructuredtext",
-        writer=writer_name)
+        writer=writer_name,
+    )
     pub.process_programmatic_settings(None, extra_params, None)
     pub.set_source(
         source=StringIO(text),
-        source_path=record.source_filename if record is not None else None)
+        source_path=record.source_filename if record is not None else None,
+    )
     pub.publish()
 
     metadata = {}
     for docinfo in pub.document.findall(docutils.nodes.docinfo):
         for element in docinfo.children:
-            if element.tagname == 'field':
+            if element.tagname == "field":
                 name_elem, body_elem = element.children
                 name = name_elem.astext()
                 value = body_elem.astext()
@@ -53,17 +54,19 @@ def rst_to_html(text, extra_params, record):
                 name = element.tagname
                 value = element.astext()
             name = name.lower()
-            if name == 'date':
-                value = datetime.datetime.strptime(value, "%Y-%m-%d %H:%M")
+            if name == "date":
+                # FIXME: do we want naive or aware datetime here?
+                value = datetime.datetime.strptime(value, "%Y-%m-%d %H:%M")  # noqa: DTZ007
+
             metadata[name] = value
 
     parts = pub.writer.parts
-    body = parts['html_title'] + parts['html_subtitle'] + parts['fragment']
+    body = parts["html_title"] + parts["html_subtitle"] + parts["fragment"]
 
     return body, metadata
 
 
-class Rst(object):
+class Rst:
     def __init__(self, source, extra_params, record):
         self.source = source
         self.extra_params = extra_params
@@ -84,10 +87,10 @@ class Rst(object):
         # we were put into the cache to the time where we got referenced
         # by something elsewhere.  In that case we need to re-process our
         # markdown.  For instance this affects relative links.
-        if self.__html is None or \
-           self.__cached_for_ctx != get_ctx():
+        if self.__html is None or self.__cached_for_ctx != get_ctx():
             self.__html, self.__meta = rst_to_html(
-                self.source, self.extra_params, self.__record())
+                self.source, self.extra_params, self.__record()
+            )
             self.__cached_for_ctx = get_ctx()
 
     @property
@@ -112,7 +115,7 @@ class Rst(object):
         return Markup(self.__html)
 
 
-class RstDescriptor(object):
+class RstDescriptor:
     def __init__(self, source, extra_params):
         self.source = source
         self.extra_params = extra_params
@@ -124,18 +127,19 @@ class RstDescriptor(object):
 
 
 class RstType(Type):
-    widget = 'multiline-text'
+    widget = "multiline-text"
 
     def __init__(self, env, options):
         Type.__init__(self, env, options)
         self.extra_params = {
-            'doctitle_xform': False,
-            'initial_header_level': '2',
-            'syntax_highlight': 'short'}
+            "doctitle_xform": False,
+            "initial_header_level": "2",
+            "syntax_highlight": "short",
+        }
         self.extra_params.update(options)
 
     def value_from_raw(self, raw):
-        return RstDescriptor(raw.value or u'', self.extra_params)
+        return RstDescriptor(raw.value or "", self.extra_params)
 
 
 class RstPlugin(Plugin):
@@ -143,4 +147,4 @@ class RstPlugin(Plugin):
     description = "Adds reStructuredText support"
 
     def on_setup_env(self, **extra):
-        self.env.types['rst'] = RstType
+        self.env.types["rst"] = RstType

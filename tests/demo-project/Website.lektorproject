@@ -15,6 +15,3 @@ url_prefix = /de/
 enabled = yes
 name = Production
 target = rsync://myserver.com/path/to/website
-
-[packages]
-lektor-rst =

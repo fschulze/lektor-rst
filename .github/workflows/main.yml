@@ -4,7 +4,7 @@ name: "CI"
 on:
   push:
   pull_request:
-    branches: [master]
+    branches: ["main"]
   schedule:
     - cron: '10 3 * * 1'
 
